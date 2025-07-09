@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRIPTO-INVER</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='/css/estilos.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>CRIPTO-INVER</h1>
+        <h4>Por favor suba un archivo csv con las siguientes columnas y valores: ("Nombre","Símbolo","Categoría","Capitalización (USD)","Volumen 24h (USD)","Exchange Principal")</h4>
+        <div class="upload-section">
+            <input type="file" id="csvFile" accept=".csv">
+            <button onclick="uploadFile()">PREDECIR</button>
+        </div>
+        <div class="result-section">
+            <h2>RESULTADOS</h2>
+            <div class="result-box" id="resultBox"></div>
+        </div>
+    </div>
+
+    <script>
+        function uploadFile() {
+            const fileInput = document.getElementById('csvFile');
+            const resultBox = document.getElementById('resultBox');
+
+            if (fileInput.files.length === 0) {
+                alert('Por favor selecciona un archivo CSV.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    resultBox.textContent = `La moneda tiene un potencial de valorización: ${data.predicción}`;
+                } else {
+                    resultBox.textContent = `Error: ${data.message}`;
+                }
+            })
+            .catch(error => {
+                resultBox.textContent = `Error al procesar. Intente nuevamente`;
+                console.error('Error: ', error);
+            });
+        }
+    </script>
+</body>
+</html>
